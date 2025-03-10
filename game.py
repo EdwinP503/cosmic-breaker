@@ -51,7 +51,7 @@ HEART_COLOR = (255, 105, 180)  # Pink hearts color
 
 # Create game window
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Pomodoro Break Minigame")
+pygame.display.set_caption("Cosmic Breaker")
 
 # Font for score and lives
 font = pygame.font.SysFont('Arial', 24)
@@ -69,6 +69,7 @@ def reset_game():
     asteroids = []
     score = 0
     lives = 3
+    manual_move = True
 
 # Initialize play button clicked flag
 play_button_clicked = False
@@ -181,6 +182,17 @@ while running:
                 manual_move = False  # Disable manual movement
                 break
 
+    # Only check ship collisions if manual mode is active
+    if manual_move:
+        for asteroid in asteroids[:]:
+            if (ship_x + SHIP_WIDTH > asteroid[0] and ship_x < asteroid[0] + ASTEROID_SIZE and
+                ship_y + SHIP_HEIGHT > asteroid[1] and ship_y < asteroid[1] + ASTEROID_SIZE):
+                lives -= 1
+                asteroids.remove(asteroid)
+                if lives <= 0:
+                    manual_move = False
+                    break
+
     # Draw spaceship (temporary rectangle, will replace with sprite later)
     pygame.draw.rect(screen, SHIP_COLOR, (ship_x, ship_y, SHIP_WIDTH, SHIP_HEIGHT))
 
@@ -197,8 +209,9 @@ while running:
     screen.blit(score_text, (10, 10))
 
     # Draw Lives (top-right)
-    for i in range(lives):
-        pygame.draw.circle(screen, HEART_COLOR, (WIDTH - 30 - (i * 30), 30), 15)
+    if manual_move:
+        for i in range(lives):
+            pygame.draw.circle(screen, HEART_COLOR, (WIDTH - 30 - (i * 30), 30), 15)
 
     # Game over screen if no lives
     if lives <= 0:
